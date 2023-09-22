@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+      - 3000:3000
+    command: npm run start:dev
+    env_file:
+      - .env
+    networks:
+      - webnet
+    depends_on:
+      - mysql
+  mysql:
+    container_name: mysql-app
+    image: mysql
+    networks:
+      - webnet
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: none
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_DATA: /var/lib/mysql/data
+    ports:
+      - 3360:3360
+    volumes:
+      - mysqldata:/var/lib/mysql/data
+networks:
+  webnet:
+volumes:
+  mysqldata:
