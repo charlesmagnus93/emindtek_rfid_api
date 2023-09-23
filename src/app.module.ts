@@ -14,6 +14,7 @@ import { APP_GUARD } from '@nestjs/core';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
+      connectTimeout: 30000,
       type: "mysql",
       logger: "advanced-console",
       logging: ['error', 'info'],

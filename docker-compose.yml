@@ -11,8 +11,7 @@ services:
       - /app/node_modules
     ports:
       - ${APP_PORT}:${APP_PORT}
-      - 3000:3000
-    command: npm run start:dev
+    command: npm run start:prod
     env_file:
       - .env
     networks:
@@ -20,20 +19,21 @@ services:
     depends_on:
       - mysql
   mysql:
-    container_name: mysql-app
+    container_name: mysql
     image: mysql
     networks:
       - webnet
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: none
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_DATA: /var/lib/mysql/data
+      MYSQL_ROOT_HOST: ${DB_HOST}
+      MYSQL_DATA: /var/lib/mysql
     ports:
       - 3360:3360
     volumes:
-      - mysqldata:/var/lib/mysql/data
+      - mysql:/var/lib/mysql
 networks:
   webnet:
 volumes:
-  mysqldata:
+  mysql:
