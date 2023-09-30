@@ -14,7 +14,7 @@ import { APP_GUARD } from '@nestjs/core';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      connectTimeout: 30000,
+      connectTimeout: 60000,
       type: "mysql",
       logger: "advanced-console",
       logging: ['error', 'info'],
@@ -24,7 +24,7 @@ import { APP_GUARD } from '@nestjs/core';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       ssl: false,
-      synchronize: true,
+      synchronize: false,
       entities: [__dirname + '/**/**.entity{.ts,.js}'],
     }),
     ThrottlerModule.forRoot([{
