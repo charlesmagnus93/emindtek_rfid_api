@@ -1,39 +1,29 @@
-version: '3.7'
-
+version: '3.1'
 services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    container_name: postgres-db
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
   app:
-    container_name: app
     build:
       context: .
       dockerfile: ./Dockerfile
-    volumes:
-      - .:/app
-      - /app/node_modules
+    environment:
+      - APP_PORT=${APP_PORT}
     ports:
       - ${APP_PORT}:${APP_PORT}
-    command: npm run start:prod
-    env_file:
-      - .env
-    networks:
-      - webnet
+    container_name: app
     depends_on:
-      - mysql
-  mysql:
-    container_name: mysql
-    image: mysql
-    networks:
-      - webnet
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_ROOT_HOST: ${DB_HOST}
-      MYSQL_DATA: /var/lib/mysql
-    ports:
-      - 3360:3360
+      - db
     volumes:
-      - mysql:/var/lib/mysql
-networks:
-  webnet:
+      - .:/app
+      - ./src:/app/src
+      - /app/node_modules
 volumes:
-  mysql:
+  pgdata:

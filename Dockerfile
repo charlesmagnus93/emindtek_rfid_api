@@ -2,23 +2,19 @@ FROM node:18-alpine
 
 RUN apk update
 
-RUN mkdir /app
+WORKDIR /app
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup \
-  && chown appuser:appgroup /app
+&& chown -R appuser:appgroup /app
 
 USER appuser
 
-WORKDIR /app
-
-COPY package.json .
-
-COPY .env .
+COPY package.json ./
 
 RUN npm install
 
-COPY /dist .
+COPY . .
 
-EXPOSE 3000 3333
+EXPOSE 3333
 
-CMD ["node", "main"]
+CMD ["npm", "run", "start:dev"]
