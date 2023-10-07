@@ -1,21 +1,21 @@
 import { Body, Controller, Delete, Get, Param, Post, ValidationPipe } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
 import { RfidService } from './rfid.service';
 import { CreateTag } from './dto/create.tag.dto';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('tags')
 export class RfidController {
   constructor(private readonly rfidService: RfidService) {}
 
-  // @SkipThrottle()
   // @Get()
   // async findAll() {
   //   return this.rfidService.findAll();
   // }
 
+  @ApiBody({ type: CreateTag })
   @Post()
   async createTag(
-    @Body(ValidationPipe) data: CreateTag
+    @Body() data: CreateTag
   ) {
     return this.rfidService.createTag(data);
   }

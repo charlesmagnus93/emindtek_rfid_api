@@ -1,11 +1,10 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { RfidModule } from './rfid/rfid.module';
 import { AppService } from './app.service';
-import { APP_GUARD } from '@nestjs/core';
+import { IntervalMinMiddleware } from './middleware/interval-min/interval-min.middleware';
 
 @Module({
   imports: [
@@ -14,31 +13,29 @@ import { APP_GUARD } from '@nestjs/core';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      type: "mysql",
+      type: "postgres",
       logger: "advanced-console",
       logging: ['error', 'info'],
-      port: parseInt(process.env.DB_PORT, 10),
-      host: process.env.DB_HOST,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
+      host: process.env.DB_HOST /* || 'postgres-db' */,
+      port: +process.env.DB_PORT/*  || 5432 */,
+      username: process.env.DB_USERNAME/*  || 'postgres' */,
+      password: process.env.DB_PASSWORD /* || 'postgres' */,
+      database: process.env.DB_NAME /* || 'etk' */,
       ssl: false,
       synchronize: true,
       entities: [__dirname + '/**/**.entity{.ts,.js}'],
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 10000,
-      limit: 1,
-    }]),
     RfidModule
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard
-    }
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(IntervalMinMiddleware)
+      .forRoutes({path: 'tags', method: RequestMethod.POST});
+  }
+}
